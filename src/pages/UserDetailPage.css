@@ -1,0 +1,213 @@
+.user-detail { padding: 24px 28px; height: 100%; overflow-y: auto; }
+
+.ud-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+/* Profile card */
+.ud-profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: sticky;
+    top: 24px;
+    align-self: flex-start;
+}
+
+.ud-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.ud-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+
+.ud-name {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.ud-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+    font-style: italic;
+}
+
+.ud-info-grid {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ud-info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.ud-info-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.ud-info-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ud-uid {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Right side */
+.ud-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ud-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+}
+
+.ud-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+}
+
+.ud-empty {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* Settings */
+.ud-settings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ud-setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.ud-setting-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+}
+
+.ud-on { background: rgba(16,185,129,0.15); color: #10b981; }
+.ud-off { background: rgba(248,113,113,0.15); color: #f87171; }
+
+/* Rooms */
+.ud-rooms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ud-room-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.ud-room-item:hover { background: var(--primary-dim); color: var(--primary); }
+
+.ud-room-name { font-weight: 600; color: var(--text-primary); flex: 1; }
+.ud-room-members { font-size: 0.75rem; color: var(--text-muted); }
+.ud-trip-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); background: rgba(6,182,212,0.15); color: #06b6d4; }
+
+/* Tokens */
+.ud-tokens-list { display: flex; flex-direction: column; gap: 6px; }
+.ud-token-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+}
+
+.ud-token-platform {
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: capitalize;
+    min-width: 60px;
+}
+
+.ud-token-id {
+    flex: 1;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ud-token-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+    .user-detail { padding: 20px 16px; padding-top: 60px; }
+    .ud-grid { grid-template-columns: 1fr; }
+    .ud-profile-card { position: static; }
+}

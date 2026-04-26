@@ -1,0 +1,84 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Open */
+.status-open {
+  background: var(--status-open-bg);
+  color: var(--status-open);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+.status-open .status-dot {
+  background: var(--status-open);
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.5);
+}
+
+/* In Progress */
+.status-progress {
+  background: var(--status-progress-bg);
+  color: var(--status-progress);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+.status-progress .status-dot {
+  background: var(--status-progress);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+}
+
+/* Resolved */
+.status-resolved {
+  background: var(--status-resolved-bg);
+  color: var(--status-resolved);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+.status-resolved .status-dot {
+  background: var(--status-resolved);
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
+}
+
+/* Closed */
+.status-closed {
+  background: var(--status-closed-bg);
+  color: var(--status-closed);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+.status-closed .status-dot {
+  background: var(--status-closed);
+  box-shadow: 0 0 6px rgba(148, 163, 184, 0.3);
+}
+
+/* Sizes */
+.status-md {
+  padding: 6px 16px;
+  font-size: 0.82rem;
+}
+
+.status-lg {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+}
+
+/* Interactive */
+.status-interactive {
+  cursor: pointer;
+}
+.status-interactive:hover {
+  filter: brightness(1.2);
+  transform: scale(1.05);
+}

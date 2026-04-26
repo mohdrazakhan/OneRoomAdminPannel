@@ -66,7 +66,7 @@ export default function Rooms() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600 font-semibold text-xs">
-                      {room.name.split(' ')[1]}
+                      {room.name.split(' ')[1] ?? room.name.charAt(0)}
                     </div>
                     <span className="font-medium text-gray-800">{room.name}</span>
                   </div>

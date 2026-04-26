@@ -1,16 +1,38 @@
-# React + Vite
+# OneRoom Admin Panel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A complete React admin panel for the **OneRoom** application — a mobile app for managing expenses, chores, and monthly budgets for people in shared accommodations (students & working professionals).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🔐 **Login** — Secure demo login (`admin@oneroom.com` / `admin123`)
+- 📊 **Dashboard** — Stats cards + Line, Bar, and Pie charts (Recharts)
+- 👥 **Users** — Search & filter users by status (Active / Inactive / Suspended)
+- 🏠 **Rooms** — Search & filter rooms by location and status
+- 🐛 **Bug Reports** — View, filter, and update bug statuses (Open / Under Process / Solved)
+- 🔔 **Notifications** — Broadcast to all users or send to a specific user; view history
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [Vite](https://vitejs.dev/) + [React](https://react.dev/)
+- [Tailwind CSS v4](https://tailwindcss.com/) via `@tailwindcss/vite`
+- [React Router DOM](https://reactrouter.com/)
+- [Recharts](https://recharts.org/)
+- [lucide-react](https://lucide.dev/)
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) and sign in with:
+
+- **Email:** `admin@oneroom.com`
+- **Password:** `admin123`
+
+## Build
+
+```bash
+npm run build
+```

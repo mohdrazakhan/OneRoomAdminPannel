@@ -20,6 +20,7 @@ export default function UsersPage() {
     const [tierFilter, setTierFilter] = useState('all');
     const [sortField, setSortField] = useState('createdAt');
     const [sortDir, setSortDir] = useState('desc');
+    const [tableScale, setTableScale] = useState(1);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -108,7 +109,7 @@ export default function UsersPage() {
     }
 
     return (
-        <div className="users-page">
+        <div className="users-page" style={{ '--table-scale': tableScale }}>
             <div className="page-header">
                 <h1 className="page-title">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
@@ -140,6 +141,11 @@ export default function UsersPage() {
                             <span className="filter-count">{tierCounts[t]}</span>
                         </button>
                     ))}
+                    <div className="table-zoom-slider" title="Adjust table density">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        <input type="range" min="0.7" max="1.5" step="0.1" value={tableScale} onChange={e => setTableScale(parseFloat(e.target.value))} />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </div>
                 </div>
             </div>
 

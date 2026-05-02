@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
-import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns';
 import './ActivityPage.css';
 
 const ACTIVITY_TYPES = {
@@ -24,15 +24,17 @@ export default function ActivityPage() {
     useEffect(() => {
         const fetchAllActivities = async () => {
             try {
-                // 1. Fetch all rooms
-                const roomsSnap = await getDocs(collection(db, 'rooms'));
+                // Step 1: Fetch rooms + users in parallel
+                const [roomsSnap, usersSnap] = await Promise.all([
+                    getDocs(collection(db, 'rooms')),
+                    getDocs(collection(db, 'users')),
+                ]);
+
                 const rooms = {};
                 roomsSnap.docs.forEach(d => {
                     rooms[d.id] = { id: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate?.() };
                 });
 
-                // 2. Fetch all users for name mapping
-                const usersSnap = await getDocs(collection(db, 'users'));
                 const userMap = {};
                 usersSnap.docs.forEach(d => {
                     const u = d.data();
@@ -41,7 +43,7 @@ export default function ActivityPage() {
 
                 const allActivities = [];
 
-                // 3. Room/Trip creation events
+                // Step 2: Room/Trip creation + member joined events (instant, no extra queries)
                 Object.values(rooms).forEach(room => {
                     const isTrip = room.settings?.isTrip === true;
                     allActivities.push({
@@ -56,100 +58,12 @@ export default function ActivityPage() {
                             ? `created a trip "${room.name || 'Unnamed Trip'}"`
                             : `created a room "${room.name || 'Unnamed Room'}"`,
                     });
-                });
 
-                // 4. Fetch expenses, tasks, chats from all rooms in parallel
-                const roomIds = Object.keys(rooms);
-
-                const fetchSubcollections = async (roomId) => {
-                    const roomName = rooms[roomId]?.name || 'Unnamed Room';
-                    const subActivities = [];
-
-                    try {
-                        // Expenses
-                        const expSnap = await getDocs(collection(db, 'rooms', roomId, 'expenses'));
-                        expSnap.docs.forEach(d => {
-                            const data = d.data();
-                            const ts = data.createdAt?.toDate?.() || null;
-                            subActivities.push({
-                                id: `exp-${roomId}-${d.id}`,
-                                type: 'expense',
-                                timestamp: ts,
-                                userName: userMap[data.paidBy] || 'Someone',
-                                userId: data.paidBy,
-                                roomName,
-                                roomId,
-                                amount: data.amount,
-                                category: data.category,
-                                description: `added an expense "${data.description || 'Untitled'}"`,
-                                extra: data.description,
-                            });
-                        });
-                    } catch (e) { /* ignore */ }
-
-                    try {
-                        // Tasks
-                        const taskSnap = await getDocs(collection(db, 'rooms', roomId, 'tasks'));
-                        taskSnap.docs.forEach(d => {
-                            const data = d.data();
-                            const ts = data.createdAt?.toDate?.() || null;
-                            subActivities.push({
-                                id: `task-${roomId}-${d.id}`,
-                                type: 'task_created',
-                                timestamp: ts,
-                                userName: userMap[data.createdBy] || 'Someone',
-                                userId: data.createdBy,
-                                roomName,
-                                roomId,
-                                description: `created a task "${data.title || 'Untitled'}"`,
-                                extra: data.title,
-                            });
-                        });
-                    } catch (e) { /* ignore */ }
-
-                    try {
-                        // Chats/Messages
-                        const chatSnap = await getDocs(collection(db, 'rooms', roomId, 'chats'));
-                        chatSnap.docs.forEach(d => {
-                            const data = d.data();
-                            const ts = data.timestamp?.toDate?.() || null;
-                            const msgPreview = data.type === 'image' ? '📷 Image'
-                                : data.type === 'file' ? '📎 File'
-                                    : (data.text || data.message || '');
-                            subActivities.push({
-                                id: `msg-${roomId}-${d.id}`,
-                                type: 'message',
-                                timestamp: ts,
-                                userName: data.senderName || userMap[data.senderId] || 'Someone',
-                                userId: data.senderId,
-                                roomName,
-                                roomId,
-                                description: `sent a message`,
-                                msgPreview: msgPreview?.slice(0, 120),
-                            });
-                        });
-                    } catch (e) { /* ignore */ }
-
-                    return subActivities;
-                };
-
-                // Fetch subcollections for all rooms in parallel (batch of 10)
-                const batchSize = 10;
-                for (let i = 0; i < roomIds.length; i += batchSize) {
-                    const batch = roomIds.slice(i, i + batchSize);
-                    const results = await Promise.all(batch.map(fetchSubcollections));
-                    results.forEach(subList => allActivities.push(...subList));
-                }
-
-                // 5. Member joined events (from room.members + user createdAt)
-                Object.values(rooms).forEach(room => {
                     (room.members || []).forEach(uid => {
-                        // Skip the creator (they created the room, not "joined")
                         if (uid === room.createdBy) return;
                         allActivities.push({
                             id: `member-${room.id}-${uid}`,
                             type: 'member_joined',
-                            // We don't have exact join time, use room creation as fallback
                             timestamp: room.createdAt || null,
                             userName: userMap[uid] || 'Someone',
                             userId: uid,
@@ -160,7 +74,74 @@ export default function ActivityPage() {
                     });
                 });
 
-                // Sort all by timestamp descending
+                // Step 3: Fetch ALL subcollections from ALL rooms in ONE parallel burst
+                // Instead of batching 10 at a time, fire all 138×3 = 414 queries at once
+                // Firebase SDK handles connection pooling internally
+                const roomIds = Object.keys(rooms);
+
+                const subcollectionPromises = roomIds.flatMap(roomId => [
+                    getDocs(collection(db, 'rooms', roomId, 'expenses')).then(snap => ({ roomId, type: 'expenses', snap })).catch(() => null),
+                    getDocs(collection(db, 'rooms', roomId, 'tasks')).then(snap => ({ roomId, type: 'tasks', snap })).catch(() => null),
+                    getDocs(collection(db, 'rooms', roomId, 'chats')).then(snap => ({ roomId, type: 'chats', snap })).catch(() => null),
+                ]);
+
+                const results = await Promise.all(subcollectionPromises);
+
+                // Step 4: Process all results
+                results.forEach(result => {
+                    if (!result || !result.snap) return;
+                    const { roomId, type, snap } = result;
+                    const roomName = rooms[roomId]?.name || 'Unnamed Room';
+
+                    snap.docs.forEach(d => {
+                        const data = d.data();
+
+                        if (type === 'expenses') {
+                            allActivities.push({
+                                id: `exp-${roomId}-${d.id}`,
+                                type: 'expense',
+                                timestamp: data.createdAt?.toDate?.() || null,
+                                userName: userMap[data.paidBy] || 'Someone',
+                                userId: data.paidBy,
+                                roomName,
+                                roomId,
+                                amount: data.amount,
+                                category: data.category,
+                                description: `added an expense "${data.description || 'Untitled'}"`,
+                                extra: data.description,
+                            });
+                        } else if (type === 'tasks') {
+                            allActivities.push({
+                                id: `task-${roomId}-${d.id}`,
+                                type: 'task_created',
+                                timestamp: data.createdAt?.toDate?.() || null,
+                                userName: userMap[data.createdBy] || 'Someone',
+                                userId: data.createdBy,
+                                roomName,
+                                roomId,
+                                description: `created a task "${data.title || 'Untitled'}"`,
+                                extra: data.title,
+                            });
+                        } else if (type === 'chats') {
+                            const msgPreview = data.type === 'image' ? '📷 Image'
+                                : data.type === 'file' ? '📎 File'
+                                    : (data.text || data.message || '');
+                            allActivities.push({
+                                id: `msg-${roomId}-${d.id}`,
+                                type: 'message',
+                                timestamp: data.timestamp?.toDate?.() || null,
+                                userName: data.senderName || userMap[data.senderId] || 'Someone',
+                                userId: data.senderId,
+                                roomName,
+                                roomId,
+                                description: `sent a message`,
+                                msgPreview: msgPreview?.slice(0, 120),
+                            });
+                        }
+                    });
+                });
+
+                // Sort by timestamp descending
                 allActivities.sort((a, b) => {
                     const tA = a.timestamp?.getTime?.() || 0;
                     const tB = b.timestamp?.getTime?.() || 0;
@@ -199,7 +180,6 @@ export default function ActivityPage() {
         visible.forEach(item => {
             const ts = item.timestamp;
             if (!ts) {
-                // no timestamp items at the end
                 if (!currentDay || currentDay.label !== 'Unknown Date') {
                     currentDay = { label: 'Unknown Date', items: [] };
                     groups.push(currentDay);

@@ -12,6 +12,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import CertificatesPage from './pages/CertificatesPage';
 import DashboardPage from './pages/DashboardPage';
 import BugDetailPage from './pages/BugDetailPage';
+import ActivityPage from './pages/ActivityPage';
 import PublicStatsPage from './pages/PublicStatsPage';
 import { signOut } from 'firebase/auth';
 import { auth } from './config/firebase';
@@ -127,6 +128,7 @@ function AdminLayout({ user, bugCounts, onBugCountsChange }) {
                     <Route path="/notifications" element={<NotificationsPage />} />
                     <Route path="/certificates" element={<CertificatesPage />} />
                     <Route path="/bugs" element={<DashboardPage onBugCountsChange={onBugCountsChange} />} />
+                    <Route path="/activity" element={<ActivityPage />} />
                     <Route path="/bugs/:id" element={<BugDetailPage />} />
                     {/* Legacy bug route redirect */}
                     <Route path="/bug/:id" element={<Navigate to="/bugs/:id" replace />} />

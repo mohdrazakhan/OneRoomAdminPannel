@@ -93,6 +93,15 @@ export default function Sidebar({ user, bugCounts, isMobileOpen, onCloseMobile }
                         <span>Certificates</span>
                     </NavLink>
 
+                    <span className="sidebar-section-label">Monitoring</span>
+
+                    <NavLink to="/activity" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                        </svg>
+                        <span>Activity</span>
+                    </NavLink>
+
                     <span className="sidebar-section-label">Support</span>
 
                     <NavLink to="/bugs" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={onCloseMobile}>
